@@ -15,7 +15,6 @@ def read = Action {
   }
 
   def list = Action(BodyParsers.parse.json) { request =>
-    DbConnect.listUsers()
     val aoReq = request.body.validate[AddrObjReq]
     aoReq.fold(
       errors => {
