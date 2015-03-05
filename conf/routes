@@ -5,7 +5,6 @@
 # Home page
 GET     /                           controllers.Application.index
 POST    /api/list						controllers.AddrObjController.list
-POST    /api/read						controllers.AddrObjController.read
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

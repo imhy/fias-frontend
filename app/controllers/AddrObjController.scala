@@ -8,28 +8,33 @@ import play.api.libs.json._
 
 
 object AddrObjController  extends Controller{
-def read = Action {
-    val addrObjRsp: AddrObjRsp = AddrObjRsp("54", Some("630055"), "ул", "Российская", 7, "sdfs-sdfsdf-ererer")
-    val baseRsp: BaseRsp[AddrObjRsp] = BaseRsp(200,Some("hello1"),Some(addrObjRsp))
-    Ok(Json.toJson(baseRsp))
-  }
 
   def list = Action(BodyParsers.parse.json) { request =>
     val aoReq = request.body.validate[AddrObjReq]
     aoReq.fold(
       errors => {
-       val baseRsp: BaseRsp[AddrObjRsp] = BaseRsp(500,Some(JsError.toFlatJson(errors).toString()),None)
+       val baseRsp: BaseRsp[String] = BaseRsp(500,Some(JsError.toFlatJson(errors).toString()),None)
        Ok(Json.toJson(baseRsp))
       },
       addrObjReq => {  
         checkUser(addrObjReq.apiKey) match {
-          case None => val baseRsp: BaseRsp[AddrObjRsp] = BaseRsp(400,None,None)
+          case None => val baseRsp: BaseRsp[String] = BaseRsp(400,None,None)
                        Ok(Json.toJson(baseRsp))
-          case Some(v) => 
-           val listAddrObj: List[AddrObjRsp] = listAo(addrObjReq)
-           val addrObjListRsp: AddrObjListRsp = AddrObjListRsp(Some(listAddrObj))
-           val baseRsp: BaseRsp[AddrObjListRsp] = BaseRsp(200,None,Some(addrObjListRsp))
-           Ok(Json.toJson(baseRsp))
+          case Some(v) =>
+           
+           addrObjReq.level match {
+             case Some("house") => {
+               val listHouses = DbConnect.listHouse(addrObjReq.parent, addrObjReq.name)
+               val baseRsp = BaseRsp(200,None,Some(HouseListRsp(Some(listHouses))))
+               Ok(Json.toJson(baseRsp))
+             }
+             case _ => {
+               val listAddrObj = listAo(addrObjReq)
+               val baseRsp = BaseRsp(200,None,Some(AddrObjListRsp(Some(listAddrObj))))
+               Ok(Json.toJson(baseRsp))    
+             }
+           } 
+           
         } 
       }
     )
@@ -43,10 +48,14 @@ def read = Action {
  
   //
   
+
   def listAo(aor : AddrObjReq): List[AddrObjRsp] = {
     aor.level match {
       case None => DbConnect.listChild(aor.parent, aor.name)
-      case Some(l) => listAoByLevel(aor) 
+      case Some("region") => DbConnect.listRegion(aor.name)
+      case Some("locality") => DbConnect.listChild(aor.parent, aor.name)
+      case Some("street") => DbConnect.listChild(aor.parent, aor.name)
+      case Some(u) => throw new IllegalArgumentException("Unknown address level: " + u) 
     }
   }
   

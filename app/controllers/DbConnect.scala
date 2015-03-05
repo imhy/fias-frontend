@@ -4,6 +4,7 @@ import play.api.Logger
 import scalikejdbc._
 import scalikejdbc.config._
 import models._
+import java.util.Date
 
 
 
@@ -32,4 +33,11 @@ DBs.setupAll()
     }
   }
   
+  def listHouse(parent: Option[String], housenum: Option[String])(implicit session: DBSession = ReadOnlyAutoSession): List[HouseRsp] = {
+    val parentguid = parent.getOrElse("-")
+    if(parentguid.length()!= 36) throw new IllegalArgumentException("parentguid is wrong")
+    val stext: String = tt(housenum)
+    val date = new Date()
+    sql"""select aoguid, houseguid, postalcode, housenum, eststatus, buildnum, strucnum, strstatus from house where aoguid = ${parentguid} and enddate > ${date} and lower(housenum) like ${stext} order by housenum""".map(rs => HouseRsp.fromRs(rs)).list.apply()
+  }
 }
