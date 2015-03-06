@@ -2,6 +2,8 @@ package models
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.Logger
+
 import scalikejdbc._
 
 case class HouseRsp(
@@ -36,19 +38,49 @@ object HouseRsp{
      
   }
   
-  def fromInterval(rs: WrappedResultSet): List[HouseRsp] = {
+  /*def fromInterval(housenum: Option[Int])(rs: WrappedResultSet): List[HouseRsp] = {
     val aoguid = rs.string("aoguid") 
     val intguid = rs.stringOpt("intguid")
     val postalcode = rs.stringOpt("postalcode")  
     val eststatus =  estMap(2) 
     val intstart = rs.int("intstart")
-    val intend = rs.int("intstart")
-    val intstatus = rs.int("intstatus")
-    val step = if(intstatus==0) 1 else 2
     
-     (for(i <- intstart.to(intend, step)) yield {
+    housenum match {
+      case Some(n) => {
+           List(new HouseRsp(aoguid,None,intguid,postalcode,Some(n.toString()),eststatus,None,None,None))
+      }
+      case None => {
+        val intend = rs.int("intstart")
+        val intstatus = rs.int("intstatus")
+        val step = if(intstatus<2) 1 else 2
+        (for(i <- intstart.to(intend, step)) yield {
         new HouseRsp(aoguid,None,intguid,postalcode,Some(i.toString()),eststatus,None,None,None)
-     }) toList
+       }) toList
+      }
+    }
+     
+  }*/
+  
+  def fromHouseInt(housenum: Option[Int])(intervals: List[HouseInt]): List[HouseRsp] = {
+    intervals.map (fromInt(housenum)(_)).flatten
+  }
+  def fromInt(housenum: Option[Int])(houseInt: HouseInt): List[HouseRsp] = {
+    val eststatus =  estMap(2)
+     housenum match {
+      case Some(n) => {
+           List(HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(n.toString()),eststatus,None,None,None))
+      }
+      case None => {
+         
+        val step = if(houseInt.intstatus<2) 1 else 2
+    
+        (for(i <- houseInt.intstart.to(houseInt.intend, step)) yield {
+        new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+     }) toList   
+      }
+    }
+    
+     
   }
   
   implicit val houseRspWrites = new Writes[HouseRsp] {
