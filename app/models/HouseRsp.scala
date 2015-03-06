@@ -38,29 +38,6 @@ object HouseRsp{
      
   }
   
-  /*def fromInterval(housenum: Option[Int])(rs: WrappedResultSet): List[HouseRsp] = {
-    val aoguid = rs.string("aoguid") 
-    val intguid = rs.stringOpt("intguid")
-    val postalcode = rs.stringOpt("postalcode")  
-    val eststatus =  estMap(2) 
-    val intstart = rs.int("intstart")
-    
-    housenum match {
-      case Some(n) => {
-           List(new HouseRsp(aoguid,None,intguid,postalcode,Some(n.toString()),eststatus,None,None,None))
-      }
-      case None => {
-        val intend = rs.int("intstart")
-        val intstatus = rs.int("intstatus")
-        val step = if(intstatus<2) 1 else 2
-        (for(i <- intstart.to(intend, step)) yield {
-        new HouseRsp(aoguid,None,intguid,postalcode,Some(i.toString()),eststatus,None,None,None)
-       }) toList
-      }
-    }
-     
-  }*/
-  
   def fromHouseInt(housenum: Option[Int])(intervals: List[HouseInt]): List[HouseRsp] = {
     intervals.map (fromInt(housenum)(_)).flatten
   }
