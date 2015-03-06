@@ -34,7 +34,6 @@ object AddrObjController  extends Controller{
                Ok(Json.toJson(baseRsp))    
              }
            } 
-           
         } 
       }
     )
