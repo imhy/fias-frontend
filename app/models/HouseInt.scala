@@ -11,7 +11,7 @@ case class HouseInt(
   
 }
 object HouseInt{
-  def fromInterval(rs: WrappedResultSet): HouseInt = 
+  def fromRs(rs: WrappedResultSet): HouseInt = 
     new HouseInt(rs.string("aoguid"),rs.string("intguid"),rs.stringOpt("postalcode"),rs.int("intstatus"),rs.int("intstart"),rs.int("intend"))
   
 }
