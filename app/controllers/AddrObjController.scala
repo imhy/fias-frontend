@@ -58,14 +58,14 @@ object AddrObjController  extends Controller{
     }
   }
   
-  def listAoByLevel(aor : AddrObjReq): List[AddrObjRsp] = {
+  /*def listAoByLevel(aor : AddrObjReq): List[AddrObjRsp] = {
     aor.level.get match {
       case "region" => DbConnect.listRegion(aor.name)
       case "locality" => DbConnect.listChild(aor.parent, aor.name)
       case "street" => DbConnect.listChild(aor.parent, aor.name)
       case u => throw new IllegalArgumentException("Unknown address level: " + u) 
     }
-  }
+  }*/
   
  
   

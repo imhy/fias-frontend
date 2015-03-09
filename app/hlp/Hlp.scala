@@ -23,6 +23,12 @@ def checkHouseNum(housenum: Option[String]): Option[Int] = {
     }
   }
  
+ def checkParentGuid(parent: Option[String]): String = {
+    val parentguid = parent.getOrElse("-") 
+    if(parentguid.length()!= 36) throw new IllegalArgumentException("parentguid is wrong")
+    parentguid
+  }
+ 
  def combine(first: List[HouseRsp], second:List[HouseRsp]): List[HouseRsp] = {
    (first:::second).sortWith(compHouse(_,_))
  }

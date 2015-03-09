@@ -5,53 +5,43 @@ import scalikejdbc._
 import scalikejdbc.config._
 import models._
 import java.util.Date
-import hlp.Hlp
 
 
 
-object DbConnect extends Hlp{
+
+object DbConnect extends DbService{
   DBs.setupAll()
   
-  def listUsers()(implicit session: DBSession = ReadOnlyAutoSession) = sql"select userid from fiasuser".map(_.string(1)).list.apply()
-
-  def listRegion(formalName: Option[String])(implicit session: DBSession = ReadOnlyAutoSession): List[AddrObjRsp] = {
+  def findUser(apikey: String): Option[User] = {
+   implicit val session: DBSession = ReadOnlyAutoSession
+   sql"select userid, apikey from fiasuser where apikey = ${apikey}".map(rs => User.fromRs(rs)).single.apply() 
+  }
+  
+  def listRegion(formalName: Option[String]): List[AddrObjRsp] = {
+    implicit val session: DBSession = ReadOnlyAutoSession
     val aolevel = 1
     val stext: String = tt(formalName)
     sql"""select regioncode, postalcode, shortname, offname, aolevel, aoguid from addressobject where livestatus = 1 and aolevel = ${aolevel} and lower(formalname) like ${stext} order by formalname""".map(rs => AddrObjRsp.fromRs(rs)).list.apply()
   }
 
-  def listChild(parent: Option[String], formalName: Option[String])(implicit session: DBSession = ReadOnlyAutoSession): List[AddrObjRsp] = {
-    val parentguid = parent.getOrElse("-")
-    if(parentguid.length()!= 36) throw new IllegalArgumentException("parentguid is wrong")
+  def listChild(parent: Option[String], formalName: Option[String]): List[AddrObjRsp] = {
+    implicit val session: DBSession = ReadOnlyAutoSession
+    val parentguid = checkParentGuid(parent)
     val stext: String = tt(formalName)
     
     sql"""select regioncode, postalcode, shortname, offname, aolevel, aoguid from addressobject where parentguid = ${parentguid} and livestatus = 1 and lower(formalname) like ${stext} order by formalname""".map(rs => AddrObjRsp.fromRs(rs)).list.apply()
   }
-  
- 
-  
-  def listHouse(parent: Option[String], housenum: Option[String])(implicit session: DBSession = ReadOnlyAutoSession): List[HouseRsp] = {
-    val parentguid = parent.getOrElse("-")
-    if(parentguid.length()!= 36) throw new IllegalArgumentException("parentguid is wrong")
-    val stext: String = tt(housenum)
-    val date = new Date()
-    val hn = checkHouseNum(housenum)
-    val houses = sql"""select aoguid, houseguid, postalcode, housenum, eststatus, buildnum, strucnum, strstatus from house where aoguid = ${parentguid} and enddate > ${date} and lower(housenum) like ${stext} order by housenum""".map(rs => HouseRsp.fromRs(rs)).list.apply()
-    val intervals = HouseRsp.fromHouseInt(hn)(listHouseInt(parent, hn))
-    
-    combine(houses, intervals)
+   
+  def listHouseOnly(parentguid: String, stext: String, date: Date): List[HouseRsp] = {
+    implicit val session: DBSession = ReadOnlyAutoSession
+    sql"""select aoguid, houseguid, postalcode, housenum, eststatus, buildnum, strucnum, strstatus from house where aoguid = ${parentguid} and enddate > ${date} and lower(housenum) like ${stext} order by housenum""".map(rs => HouseRsp.fromRs(rs)).list.apply()
   }
   
-  def listHouseInt(parent: Option[String], housenum: Option[Int])(implicit session: DBSession = ReadOnlyAutoSession): List[HouseInt] = {
-    val parentguid = parent.getOrElse("-")
-    if(parentguid.length()!= 36) throw new IllegalArgumentException("parentguid is wrong")
-    
-    val date = new Date()
-    
+  def listHouseInt(parentguid: String, housenum: Option[Int], date: Date): List[HouseInt] = {
+    implicit val session: DBSession = ReadOnlyAutoSession
     housenum match {
       case Some(hn) => 
        val even: Int = if(hn%2==0) 3 else 2
-       //sql"""select aoguid, intguid, postalcode, intstart, intend, intstatus from houseinterval where aoguid = ${parentguid} and enddate > ${date} and intstart <= ${hn} and intend >= ${hn} and intstatus <> ${even}""".map(rs => HouseInt.fromRs(rs)).list.apply()
        sql"""select aoguid, intguid, postalcode, intstart, intend, intstatus from houseinterval where aoguid = ${parentguid} and enddate > ${date}  and intend >= ${hn} and intstatus <> ${even}""".map(rs => HouseInt.fromRs(rs)).list.apply()
       
       case None => 

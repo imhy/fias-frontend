@@ -24,7 +24,7 @@ object HouseRsp{
   val estMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("Владение"),2->Some("Дом"), 3 -> Some("Домовладение"))
   val stMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("строение"),2->Some("сооружение"), 3 -> Some("литер"))
   
-  def fromRs(rs: WrappedResultSet): HouseRsp = {
+  def fromRs(rs: WrappedResultSet) = {
     val aoguid = rs.string("aoguid") 
     val houseguid = rs.stringOpt("houseguid")
     val postalcode = rs.stringOpt("postalcode")
@@ -34,8 +34,7 @@ object HouseRsp{
     val strucnum =  rs.stringOpt("strucnum")
     val strstatus =   stMap(rs.int("strstatus")) 
     
-    new HouseRsp(aoguid,houseguid,None,postalcode,housenum,eststatus,buildnum,strucnum,strstatus)
-     
+    HouseRsp(aoguid,houseguid,None,postalcode,housenum,eststatus,buildnum,strucnum,strstatus)
   }
   
   def fromHouseInt(housenum: Option[Int])(intervals: List[HouseInt]): List[HouseRsp] = {
@@ -48,7 +47,7 @@ object HouseRsp{
       case Some(n) => {
           // List(HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(n.toString()),eststatus,None,None,None))
          (for(i <- houseInt.intstart.to(houseInt.intend, step) if i.toString.toLowerCase.startsWith(n.toString.toLowerCase)) yield {
-          new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+           HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
          }) toList 
       }
       case None => {
@@ -56,7 +55,7 @@ object HouseRsp{
        
     
         (for(i <- houseInt.intstart.to(houseInt.intend, step)) yield {
-          new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+          HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
          }) toList   
       }
     }
