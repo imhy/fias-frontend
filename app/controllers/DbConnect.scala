@@ -51,7 +51,8 @@ object DbConnect extends Hlp{
     housenum match {
       case Some(hn) => 
        val even: Int = if(hn%2==0) 3 else 2
-       sql"""select aoguid, intguid, postalcode, intstart, intend, intstatus from houseinterval where aoguid = ${parentguid} and enddate > ${date} and intstart <= ${hn} and intend >= ${hn} and intstatus <> ${even}""".map(rs => HouseInt.fromRs(rs)).list.apply()
+       //sql"""select aoguid, intguid, postalcode, intstart, intend, intstatus from houseinterval where aoguid = ${parentguid} and enddate > ${date} and intstart <= ${hn} and intend >= ${hn} and intstatus <> ${even}""".map(rs => HouseInt.fromRs(rs)).list.apply()
+       sql"""select aoguid, intguid, postalcode, intstart, intend, intstatus from houseinterval where aoguid = ${parentguid} and enddate > ${date}  and intend >= ${hn} and intstatus <> ${even}""".map(rs => HouseInt.fromRs(rs)).list.apply()
       
       case None => 
         sql"""select aoguid, intguid, postalcode, intstart, intend, intstatus from houseinterval where aoguid = ${parentguid} and enddate > ${date}""".map(rs => HouseInt.fromRs(rs)).list.apply()

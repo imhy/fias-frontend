@@ -43,17 +43,21 @@ object HouseRsp{
   }
   def fromInt(housenum: Option[Int])(houseInt: HouseInt): List[HouseRsp] = {
     val eststatus =  estMap(2)
+     val step = if(houseInt.intstatus<2) 1 else 2
      housenum match {
       case Some(n) => {
-           List(HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(n.toString()),eststatus,None,None,None))
+          // List(HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(n.toString()),eststatus,None,None,None))
+         (for(i <- houseInt.intstart.to(houseInt.intend, step) if i.toString.toLowerCase.startsWith(n.toString.toLowerCase)) yield {
+          new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+         }) toList 
       }
       case None => {
          
-        val step = if(houseInt.intstatus<2) 1 else 2
+       
     
         (for(i <- houseInt.intstart.to(houseInt.intend, step)) yield {
-        new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
-     }) toList   
+          new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+         }) toList   
       }
     }
     
