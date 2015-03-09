@@ -5,6 +5,8 @@ import play.api.mvc._
 import models._
 import scala.concurrent._
 import play.api.libs.json._
+import play.api.cache.Cache
+import play.api.Play.current
 
 
 object AddrObjController  extends Controller{
@@ -20,7 +22,7 @@ object AddrObjController  extends Controller{
         checkUser(addrObjReq.apiKey) match {
           case None => val baseRsp: BaseRsp[String] = BaseRsp(400,None,None)
                        Ok(Json.toJson(baseRsp))
-          case Some(v) =>
+          case Some(u) =>
            
            addrObjReq.level match {
              case Some("house") => {
@@ -41,8 +43,16 @@ object AddrObjController  extends Controller{
   
  
   
-  def checkUser(apiKey: String) : Option[String] = {
-    if (apiKey.equalsIgnoreCase("apikey")) Some("username") else None
+  def checkUser(apiKey: String) : Option[User] = {
+   Cache.getAs[User](apiKey) match {
+      case None => DbConnect.findUser(apiKey) match {
+        case None => None
+        case Some(du) => 
+          Cache.set(apiKey, du, 40*60)
+          Some(du)
+      }
+      case u => u 
+    }
   }
  
   //
@@ -57,19 +67,6 @@ object AddrObjController  extends Controller{
       case Some(u) => throw new IllegalArgumentException("Unknown address level: " + u) 
     }
   }
-  
-  /*def listAoByLevel(aor : AddrObjReq): List[AddrObjRsp] = {
-    aor.level.get match {
-      case "region" => DbConnect.listRegion(aor.name)
-      case "locality" => DbConnect.listChild(aor.parent, aor.name)
-      case "street" => DbConnect.listChild(aor.parent, aor.name)
-      case u => throw new IllegalArgumentException("Unknown address level: " + u) 
-    }
-  }*/
-  
- 
-  
-   
   
   
   def authAction[A](action: Action[JsValue]) = 
