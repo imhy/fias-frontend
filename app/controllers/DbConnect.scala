@@ -55,6 +55,6 @@ object DbConnect extends DbService{
     implicit val session: DBSession = ReadOnlyAutoSession
     val stext: String = tt(formalName)
     val region: String = checkRegion(regioncode)
-    sql"""select a.regioncode, a.postalcode, a.shortname, a.offname, a.aolevel, a.aoguid, p.shortname, p.offname, p.aoguid from addressobject a left join addressobject p on a.parentguid = p.aoguid where p.livestatus = 1 and a.livestatus = 1 and a.regioncode = ${region} and a.aolevel in (4,6) and lower(a.formalname) like ${stext} order by a.formalname""".map(rs => AddrObjRsp.fromRsWithParent(rs)).list.apply()
+    sql"""select a.regioncode regioncode, a.postalcode postalcode, a.shortname shortname, a.offname offname, a.aolevel aolevel, a.aoguid aoguid, p.shortname pshortname, p.offname poffname, p.aoguid paoguid from addressobject a left join addressobject p on a.parentguid = p.aoguid where p.livestatus = 1 and a.livestatus = 1 and a.regioncode = ${region} and a.aolevel in (4,6) and lower(a.formalname) like ${stext} order by a.formalname""".map(rs => AddrObjRsp.fromRsWithParent(rs)).list.apply()
   }
 }
