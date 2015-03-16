@@ -1,7 +1,7 @@
 package models
 import play.api.libs.json._
 
-class ParentAo(val aoguid: String, val shortname: String, val offname: String) {
+class ParentAo( val shortname: String, val offname: String, val aoguid: String) {
 
 }
 
@@ -13,5 +13,4 @@ object ParentAo{
       "aoguid" -> parentAo.aoguid
     )
   }
-  //def apply(aoguid: String, shortname: String, offname: String) = new ParentAo(aoguid, shortname, offname)
 }
