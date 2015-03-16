@@ -29,6 +29,13 @@ def checkHouseNum(housenum: Option[String]): Option[Int] = {
     parentguid
   }
  
+ def checkRegion(regioncode: Option[String]): String = {
+    regioncode match {
+      case None => throw new IllegalArgumentException("region  is wrong")
+      case Some(r) => r
+    }
+  }
+ 
  def combine(first: List[HouseRsp], second:List[HouseRsp]): List[HouseRsp] = {
    (first:::second).sortWith(compHouse(_,_))
  }

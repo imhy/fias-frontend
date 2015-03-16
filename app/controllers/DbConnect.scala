@@ -50,4 +50,11 @@ object DbConnect extends DbService{
     }
   }
   
+  def listLocality(regioncode: Option[String], formalName: Option[String]): List[AddrObjRsp] = {
+    
+    implicit val session: DBSession = ReadOnlyAutoSession
+    val stext: String = tt(formalName)
+    val region: String = checkRegion(regioncode)
+    sql"""select a.regioncode, a.postalcode, a.shortname, a.offname, a.aolevel, a.aoguid, p.shortname, p.offname, p.aoguid from addressobject a left join addressobject p on a.parentguid = a.aoguid where p.livestatus = 1 and a.livestatus = 1 and a.regioncode = ${region} and a.aolevel in (4,6) and lower(a.formalname) like ${stext} order by a.formalname""".map(rs => AddrObjRsp.fromRsWithParent(rs)).list.apply()
+  }
 }
