@@ -23,7 +23,7 @@ class HouseRsp(
       val sb: StringBuilder = new StringBuilder()
       housenum match {
         case Some(n) => {eststatus  match {
-          case Some(e) => sb.append(HouseRsp.estMapShrt(e))
+          case Some(e) => sb.append(HouseRsp.estMapShrt.getOrElse(e,""))
                           sb.append(" ")
           case _ => ()
           sb.append(n)
@@ -40,7 +40,7 @@ class HouseRsp(
         case Some(s) => {
           strstatus match {
             case Some(st) => sb.append(" ")
-                             sb.append(HouseRsp.stMapShrt(st))
+                             sb.append(HouseRsp.stMapShrt.getOrElse(st,""))
                              sb.append(" ")
             case _ =>()
             sb.append(s)
