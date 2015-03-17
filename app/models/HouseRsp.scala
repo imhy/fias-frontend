@@ -61,8 +61,8 @@ object HouseRsp{
   val estMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("владение"),2->Some("дом"), 3 -> Some("домовладение"))
   val stMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("строение"),2->Some("сооружение"), 3 -> Some("литер"))
   
-  val estMapShrt: Map[String,Option[String]] = Map("владение"->Some("вл."),"дом"->Some("д."), "домовладение" -> Some("домовл."))
-  val stMapShrt: Map[String,Option[String]] = Map("строение" -> Some("стр."),"сооружение" -> Some("соор."), "литер" -> Some("лит."))
+  val estMapShrt: Map[String,String] = Map("владение"-> "вл.", "дом"-> "д.", "домовладение" -> "домовл.")
+  val stMapShrt: Map[String,String] = Map("строение" -> "стр.", "сооружение" -> "соор.", "литер" -> "лит.")
   
   def fromRs(rs: WrappedResultSet) = {
     val aoguid = rs.string("aoguid") 
