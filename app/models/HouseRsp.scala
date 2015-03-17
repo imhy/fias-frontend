@@ -6,23 +6,60 @@ import play.api.Logger
 
 import scalikejdbc._
 
-case class HouseRsp(
-    aoguid: String, 
-    houseguid: Option[String], 
-    intguid: Option[String], 
-    postalcode: Option[String], 
-    housenum: Option[String], 
-    eststatus: Option[String], 
-    buildnum: Option[String], 
-    strucnum: Option[String], 
-    strstatus: Option[String]) {
+class HouseRsp(
+    val aoguid: String, 
+    val houseguid: Option[String], 
+    val intguid: Option[String], 
+    val postalcode: Option[String], 
+    val housenum: Option[String], 
+    val eststatus: Option[String], 
+    val buildnum: Option[String], 
+    val strucnum: Option[String], 
+    val strstatus: Option[String]) {
+  
+    val fullname = buildFullName
+    
+    def buildFullName(): String = {
+      val sb: StringBuilder = new StringBuilder()
+      housenum match {
+        case Some(n) => {eststatus  match {
+          case Some(e) => sb.append(HouseRsp.estMapShrt(e))
+                          sb.append(" ")
+          case _ => ()
+          sb.append(n)
+        }}
+        case _ => ()
+      }
+      buildnum match {
+        case Some(b) => sb.append(" корп.")
+                        sb.append(" ")
+                        sb.append(b)
+        case _ => ()
+      }
+      strucnum match {
+        case Some(s) => {
+          strstatus match {
+            case Some(st) => sb.append(" ")
+                             sb.append(HouseRsp.stMapShrt(st))
+                             sb.append(" ")
+            case _ =>()
+            sb.append(s)
+          }
+        }
+        case _ => ()
+      }
+      sb.toString.trim
+    }
 }
 
 
 
 object HouseRsp{
-  val estMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("Владение"),2->Some("Дом"), 3 -> Some("Домовладение"))
+  val estMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("владение"),2->Some("дом"), 3 -> Some("домовладение"))
   val stMap: Map[Int,Option[String]] = Map(0 ->None,1->Some("строение"),2->Some("сооружение"), 3 -> Some("литер"))
+  
+  val estMapShrt: Map[String,Option[String]] = Map("владение"->Some("вл."),"дом"->Some("д."), "домовладение" -> Some("домовл."))
+  val stMapShrt: Map[String,Option[String]] = Map("строение" -> Some("стр."),"сооружение" -> Some("соор."), "литер" -> Some("лит."))
   
   def fromRs(rs: WrappedResultSet) = {
     val aoguid = rs.string("aoguid") 
@@ -34,9 +71,10 @@ object HouseRsp{
     val strucnum =  rs.stringOpt("strucnum")
     val strstatus =   stMap(rs.int("strstatus")) 
     
-    HouseRsp(aoguid,houseguid,None,postalcode,housenum,eststatus,buildnum,strucnum,strstatus)
+    new HouseRsp(aoguid,houseguid,None,postalcode,housenum,eststatus,buildnum,strucnum,strstatus)
   }
   
+ 
   def fromHouseInt(housenum: Option[Int])(intervals: List[HouseInt]): List[HouseRsp] = {
     intervals.map (fromInt(housenum)(_)).flatten
   }
@@ -45,9 +83,8 @@ object HouseRsp{
      val step = if(houseInt.intstatus<2) 1 else 2
      housenum match {
       case Some(n) => {
-          // List(HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(n.toString()),eststatus,None,None,None))
          (for(i <- houseInt.intstart.to(houseInt.intend, step) if i.toString.toLowerCase.startsWith(n.toString.toLowerCase)) yield {
-           HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+          new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
          }) toList 
       }
       case None => {
@@ -55,7 +92,7 @@ object HouseRsp{
        
     
         (for(i <- houseInt.intstart.to(houseInt.intend, step)) yield {
-          HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
+          new HouseRsp(houseInt.aoguid,None,Some(houseInt.intguid),houseInt.postalcode, Some(i.toString()),eststatus,None,None,None)
          }) toList   
       }
     }
@@ -73,7 +110,8 @@ object HouseRsp{
     "eststatus" -> houseRsp.eststatus, 
     "buildnum" -> houseRsp.buildnum, 
     "strucnum" -> houseRsp.strucnum, 
-    "strstatus" -> houseRsp.strstatus
+    "strstatus" -> houseRsp.strstatus,
+    "fullname" -> houseRsp.fullname
   )
 }
 }
