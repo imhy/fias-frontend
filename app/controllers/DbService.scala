@@ -13,6 +13,7 @@ trait DbService extends Hlp {
  def listHouseInt(parentguid: String, housenum: Option[Int], date: Date): List[HouseInt]
  
  def listLocality(regioncode: Option[String], formalName: Option[String]): List[AddrObjRsp]
+ def listStreet(parent: Option[String], formalName: Option[String]): List[AddrObjRsp]
  
  def listHouse(parent: Option[String], housenum: Option[String]): List[HouseRsp] = {
     val parentguid = checkParentGuid(parent)

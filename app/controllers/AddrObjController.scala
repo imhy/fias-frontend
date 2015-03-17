@@ -63,7 +63,7 @@ object AddrObjController  extends Controller{
       case None => DbConnect.listChild(aor.parent, aor.name)
       case Some("region") => DbConnect.listRegion(aor.name)
       case Some("locality") => DbConnect.listLocality(aor.region, aor.name)
-      case Some("street") => DbConnect.listChild(aor.parent, aor.name)
+      case Some("street") => DbConnect.listStreet(aor.parent, aor.name)
       case Some(u) => throw new IllegalArgumentException("Unknown address level: " + u) 
     }
   }
