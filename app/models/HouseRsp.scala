@@ -22,12 +22,14 @@ class HouseRsp(
     def buildFullName(): String = {
       val sb: StringBuilder = new StringBuilder()
       housenum match {
-        case Some(n) => {eststatus  match {
-          case Some(e) => sb.append(HouseRsp.estMapShrt.getOrElse(e,""))
-                          sb.append(" ")
-          case _ => ()
-          sb.append(n)
-        }}
+        case Some(n) => {
+            eststatus  match {
+            case Some(e) => sb.append(HouseRsp.estMapShrt.getOrElse(e,""))
+                            sb.append(" ")
+            case _ => ()          
+          }
+        sb.append(n)
+        }
         case _ => ()
       }
       buildnum match {
@@ -43,8 +45,9 @@ class HouseRsp(
                              sb.append(HouseRsp.stMapShrt.getOrElse(st,""))
                              sb.append(" ")
             case _ =>()
-            sb.append(s)
+            
           }
+          sb.append(s)
         }
         case _ => ()
       }
