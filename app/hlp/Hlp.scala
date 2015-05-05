@@ -19,7 +19,7 @@ def checkHouseNum(housenum: Option[String]): Option[Int] = {
  def tt(itext:Option[String]): String = {
     itext match {
       case None => "%"
-      case Some(t) => if(t.equalsIgnoreCase("*")) "%" else t.trim().toLowerCase()+"%"
+      case Some(t) => if(t.equalsIgnoreCase("*")) "%" else "%"+t.trim().toLowerCase()+"%"
     }
   }
  
